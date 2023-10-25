@@ -10,7 +10,7 @@ const opacity = keyframes`
 const StyledMessage = styled.div`
   animation: ${opacity} 1s forwards;
 `
-
+//changed {message} to take in prop
 export default function Message(props) {
   const {message} = props;
   return (
