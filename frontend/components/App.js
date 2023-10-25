@@ -5,9 +5,19 @@ import LoginForm from './LoginForm'
 import Message from './Message'
 import ArticleForm from './ArticleForm'
 import Spinner from './Spinner'
+import axios from 'axios'
 
 const articlesUrl = 'http://localhost:9000/api/articles'
 const loginUrl = 'http://localhost:9000/api/login'
+
+const axiosWithAuth = () => {
+  const token = localStorage.getItem('token');
+  return axios.create({
+    headers: {
+      Authorization: token,
+    },
+  });
+};
 
 export default function App() {
   // ✨ MVP can be achieved with these states
@@ -18,10 +28,18 @@ export default function App() {
 
   // ✨ Research `useNavigate` in React Router v.6
   const navigate = useNavigate()
-  const redirectToLogin = () => { /* ✨ implement */ }
-  const redirectToArticles = () => { /* ✨ implement */ }
+  const redirectToLogin = () => {
+    navigate('/')
+    /* ✨ implement */ }
+
+  const redirectToArticles = () => { 
+    navigate('/articles')
+    /* ✨ implement */ }
 
   const logout = () => {
+    localStorage.removeItem('token')
+    setMessage('Goodbye!')
+    redirectToLogin()
     // ✨ implement
     // If a token is in local storage it should be removed,
     // and a message saying "Goodbye!" should be set in its proper state.
@@ -31,6 +49,22 @@ export default function App() {
 
   const login = ({ username, password }) => {
     // ✨ implement
+    setMessage('')
+    setSpinnerOn(true);
+
+    axios.post('http://localhost:9000/api/login', {username, password})
+    .then(res => {
+      localStorage.setItem('token', res.data.token);
+      redirectToArticles();
+      setSpinnerOn(false);
+      setMessage(res.data.message)
+      
+    })
+    .catch(err => {
+      console.log(err)
+    })
+    
+    
     // We should flush the message state, turn on the spinner
     // and launch a request to the proper endpoint.
     // On success, we should set the token to local storage in a 'token' key,
@@ -69,7 +103,7 @@ export default function App() {
     // ✨ fix the JSX: `Spinner`, `Message`, `LoginForm`, `ArticleForm` and `Articles` expect props ❗
     <>
       <Spinner />
-      <Message />
+      <Message message={message}/>
       <button id="logout" onClick={logout}>Logout from app</button>
       <div id="wrapper" style={{ opacity: spinnerOn ? "0.25" : "1" }}> {/* <-- do not change this line */}
         <h1>Advanced Web Applications</h1>
@@ -78,7 +112,7 @@ export default function App() {
           <NavLink id="articlesScreen" to="/articles">Articles</NavLink>
         </nav>
         <Routes>
-          <Route path="/" element={<LoginForm />} />
+          <Route path="/" element={<LoginForm login={login}/>} />
           <Route path="articles" element={
             <>
               <ArticleForm />
