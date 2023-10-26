@@ -76,6 +76,26 @@ export default function App() {
     // ✨ implement
     setMessage('')
     setSpinnerOn(true);
+    const token = localStorage.getItem('token')
+    //console.log(token);
+    axios.get('http://localhost:9000/api/articles', {
+      headers: {
+        authorization: token
+      }
+    })
+    .then(res => {
+      setArticles(res.data.articles)
+      setMessage(res.data.message)
+      setSpinnerOn(false);
+      console.log(articles);
+    })
+    .catch(err => {
+      if (err.response && err.response.status === 401) {
+        redirectToLogin();
+      }
+      console.log(err)
+      setSpinnerOn(false);
+    })
     // We should flush the message state, turn on the spinner
     // and launch an authenticated request to the proper endpoint.
     // On success, we should set the articles in their proper state and
@@ -118,7 +138,7 @@ export default function App() {
           <Route path="articles" element={
             <>
               <ArticleForm />
-              <Articles />
+              <Articles articles={articles} getArticles={getArticles}/>
             </>
           } />
         </Routes>
