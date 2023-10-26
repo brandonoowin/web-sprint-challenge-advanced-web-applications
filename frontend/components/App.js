@@ -74,6 +74,8 @@ export default function App() {
 
   const getArticles = () => {
     // ✨ implement
+    setMessage('')
+    setSpinnerOn(true);
     // We should flush the message state, turn on the spinner
     // and launch an authenticated request to the proper endpoint.
     // On success, we should set the articles in their proper state and
