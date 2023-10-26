@@ -16,13 +16,13 @@ export default function LoginForm(props) {
   }
 
   const onSubmit = evt => {
-    console.log('is submitted')
+    //console.log('is submitted')
     evt.preventDefault()
     login({username: values.username, password:values.password})
     // ✨ implement
   }
 
-  console.log(values)
+  //console.log(values)
 
   const isDisabled = () => {
     const {username, password} = values; 
