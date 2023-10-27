@@ -10,14 +10,14 @@ import axios from 'axios'
 const articlesUrl = 'http://localhost:9000/api/articles'
 const loginUrl = 'http://localhost:9000/api/login'
 
-const axiosWithAuth = () => {
-  const token = localStorage.getItem('token');
-  return axios.create({
-    headers: {
-      Authorization: token,
-    },
-  });
-};
+// const axiosWithAuth = () => {
+//   const token = localStorage.getItem('token');
+//   return axios.create({
+//     headers: {
+//       Authorization: token,
+//     },
+//   });
+// };
 
 export default function App() {
   // ✨ MVP can be achieved with these states
@@ -87,7 +87,6 @@ export default function App() {
       setArticles(res.data.articles)
       setMessage(res.data.message)
       setSpinnerOn(false);
-      console.log(articles);
     })
     .catch(err => {
       if (err.response && err.response.status === 401) {
@@ -105,8 +104,32 @@ export default function App() {
     // Don't forget to turn off the spinner!
   }
 
-  const postArticle = article => {
+  const postArticle = (article) => {
+    console.log('article data:', article)
     // ✨ implement
+    setMessage('')
+    setSpinnerOn(true);
+    const token = localStorage.getItem('token')
+    //console.log(token);
+    axios.post('http://localhost:9000/api/articles', article, {
+      headers: {
+        authorization: token
+      }
+    })
+    .then(res => {
+      console.log(res);
+      setArticles([...articles, res.data.article])
+      setMessage(res.data.message)
+      setSpinnerOn(false);
+    })
+    .catch(err => {
+      console.log(err)
+      if (err.response && err.response.status === 401) {
+         redirectToLogin();
+       }
+       console.log(err)
+      setSpinnerOn(false);
+    })
     // The flow is very similar to the `getArticles` function.
     // You'll know what to do! Use log statements or breakpoints
     // to inspect the response from the server.
@@ -137,8 +160,8 @@ export default function App() {
           <Route path="/" element={<LoginForm login={login}/>} />
           <Route path="articles" element={
             <>
-              <ArticleForm />
-              <Articles articles={articles} getArticles={getArticles}/>
+              <ArticleForm postArticle={postArticle}/>
+              <Articles articles={articles} getArticles={getArticles} redirectToLogin={redirectToLogin}/>
             </>
           } />
         </Routes>
