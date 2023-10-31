@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect} from 'react'
 import { NavLink, Routes, Route, useNavigate } from 'react-router-dom'
 import Articles from './Articles'
 import LoginForm from './LoginForm'
@@ -84,6 +84,7 @@ export default function App() {
       }
     })
     .then(res => {
+      //console.log(res)
       setArticles(res.data.articles)
       setMessage(res.data.message)
       setSpinnerOn(false);
@@ -105,7 +106,6 @@ export default function App() {
   }
 
   const postArticle = (article) => {
-    console.log('article data:', article)
     // ✨ implement
     setMessage('')
     setSpinnerOn(true);
@@ -136,13 +136,63 @@ export default function App() {
   }
 
   const updateArticle = ({ article_id, article }) => {
+    setMessage('')
+    setSpinnerOn(true);
+    const updatedArticle = {
+      title: article.title,
+      text: article.text,
+      topic: article.topic,
+    };
+    const token = localStorage.getItem('token')
+    axios.put(`http://localhost:9000/api/articles/${article_id}`, updatedArticle, {
+      headers: {
+        authorization: token
+      }
+    })
+    .then(res => {
+      console.log(res);
+      setSpinnerOn(false);
+      //setCurrentArticleId(article_id);
+      
+      setMessage(res.data.message)
+    })
+    .catch(err => {
+      console.log(err)
+      setSpinnerOn(false);
+      if (err.response && err.response.status === 401) {
+         redirectToLogin();
+       }
+       console.log(err)
+    })
     // ✨ implement
     // You got this!
   }
 
-  const deleteArticle = article_id => {
-    // ✨ implement
-  }
+  const deleteArticle = (article_id) => {
+    const token = localStorage.getItem('token');
+  
+    axios
+      .delete(`http://localhost:9000/api/articles/${article_id}`, {
+        headers: {
+          Authorization: token,
+        },
+      })
+      .then((res) => {
+        // Handle the successful deletion, such as removing the article from the state.
+        // You can filter the articles array to remove the deleted article.
+        setArticles(articles.filter((article) => article.article_id !== article_id));
+        setMessage(res.data.message);
+      })
+      .catch((err) => {
+        // Handle any errors, including unauthorized access.
+        if (err.response && err.response.status === 401) {
+          redirectToLogin();
+        } else {
+          console.error(err);
+        }
+      });
+  };
+  
 
   return (
     // ✨ fix the JSX: `Spinner`, `Message`, `LoginForm`, `ArticleForm` and `Articles` expect props ❗
@@ -160,8 +210,22 @@ export default function App() {
           <Route path="/" element={<LoginForm login={login}/>} />
           <Route path="articles" element={
             <>
-              <ArticleForm postArticle={postArticle}/>
-              <Articles articles={articles} getArticles={getArticles} redirectToLogin={redirectToLogin}/>
+              <ArticleForm 
+              postArticle={postArticle}
+              updateArticle={updateArticle}
+              currentArticleID={currentArticleId}
+              setCurrentArticleId={setCurrentArticleId}/>
+              
+              <Articles 
+              articles={articles} 
+              getArticles={getArticles} 
+              redirectToLogin={redirectToLogin}
+              updateArticle={updateArticle}
+              deleteArticle={deleteArticle}
+              currentArticleID={currentArticleId}
+              setCurrentArticleId={setCurrentArticleId}
+              
+              />
             </>
           } />
         </Routes>

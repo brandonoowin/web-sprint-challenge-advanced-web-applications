@@ -3,8 +3,10 @@ import { Navigate } from 'react-router-dom'
 import PT from 'prop-types'
 
 export default function Articles(props) {
-  const {articles, getArticles, redirectToLogin} = props;
-  const token = localStorage.getItem('token')
+  const {articles, getArticles, redirectToLogin, updateArticle, deleteArticle, currentArticleId, setCurrentArticleId} = props;
+  const token = localStorage.getItem('token');
+  
+
   
   if (!token) {
     return <Navigate to='/' />
@@ -16,12 +18,19 @@ export default function Articles(props) {
 
   useEffect(() => {
     if (!token) {
-      return <Navigate to='/' />
+      redirectToLogin();
     } else {
       getArticles();
     }
     // ✨ grab the articles here, on first render only
   }, [])
+
+  const handleEdit = (art) => {
+    console.log('has been click')
+    setCurrentArticleId(art)
+    return <Navigate to={`/article`} />;
+  };
+
 
   return (
     // ✨ fix the JSX: replace `Function.prototype` with actual functions
@@ -29,7 +38,7 @@ export default function Articles(props) {
     <div className="articles">
       <h2>Articles</h2>
       {
-        !articles.length
+        ![articles].length
           ? 'No articles yet'
           : articles.map(art => {
             return (
@@ -40,8 +49,8 @@ export default function Articles(props) {
                   <p>Topic: {art.topic}</p>
                 </div>
                 <div>
-                  <button disabled={true} onClick={Function.prototype}>Edit</button>
-                  <button disabled={true} onClick={Function.prototype}>Delete</button>
+                  <button disabled={currentArticleId} onClick={() => handleEdit(art)}>Edit</button>
+                  <button disabled={currentArticleId} onClick={() => deleteArticle(art.article_id)}>Delete</button>
                 </div>
               </div>
             )
