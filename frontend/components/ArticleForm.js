@@ -4,7 +4,7 @@ import PT from 'prop-types'
 const initialFormValues = { title: '', text: '', topic: '' }
 
 export default function ArticleForm(props) {
-  const {postArticle, updateArticle, currentArticleID, setCurrentArticleId} = props;
+  const {postArticle, updateArticle, currentArticleID, setCurrentArticleId, getArticles} = props;
   const [values, setValues] = useState(initialFormValues)
   // ✨ where are my props? Destructure them here
 
@@ -14,6 +14,7 @@ export default function ArticleForm(props) {
         title: currentArticleID.title,
         text: currentArticleID.text,
         topic: currentArticleID.topic
+        
       });
     } else {
       setValues(initialFormValues);
@@ -33,6 +34,7 @@ export default function ArticleForm(props) {
     evt.preventDefault()
     if (currentArticleID) {
       updateArticle({ article_id: currentArticleID.article_id, article: values});
+      setCurrentArticleId(null);
     } else {
       postArticle(values);
       setValues(initialFormValues);
@@ -56,6 +58,7 @@ export default function ArticleForm(props) {
     setCurrentArticleId(null);
     setValues(initialFormValues)
   };
+
 
   return (
     // ✨ fix the JSX: make the heading display either "Edit" or "Create"

@@ -10,14 +10,6 @@ import axios from 'axios'
 const articlesUrl = 'http://localhost:9000/api/articles'
 const loginUrl = 'http://localhost:9000/api/login'
 
-// const axiosWithAuth = () => {
-//   const token = localStorage.getItem('token');
-//   return axios.create({
-//     headers: {
-//       Authorization: token,
-//     },
-//   });
-// };
 
 export default function App() {
   // ✨ MVP can be achieved with these states
@@ -136,37 +128,50 @@ export default function App() {
   }
 
   const updateArticle = ({ article_id, article }) => {
-    setMessage('')
+    setMessage('');
     setSpinnerOn(true);
-    const updatedArticle = {
-      title: article.title,
-      text: article.text,
-      topic: article.topic,
-    };
-    const token = localStorage.getItem('token')
-    axios.put(`http://localhost:9000/api/articles/${article_id}`, updatedArticle, {
+    const token = localStorage.getItem('token');
+  
+    axios.put(`http://localhost:9000/api/articles/${article_id}`, article, {
       headers: {
-        authorization: token
+        authorization: token,
       }
     })
     .then(res => {
-      console.log(res);
+      console.log(res.data.message);
       setSpinnerOn(false);
-      //setCurrentArticleId(article_id);
       
-      setMessage(res.data.message)
+      // Update the message state
+      setMessage(res.data.message);
+  
+      // Fetch the updated articles directly here
+      axios.get('http://localhost:9000/api/articles', {
+        headers: {
+          authorization: token
+        }
+      })
+      .then(res => {
+        // Update the articles state with the new data
+        setArticles(res.data.articles);
+      })
+      .catch(err => {
+        console.log(err);
+        if (err.response && err.response.status === 401) {
+          redirectToLogin();
+        }
+        console.log(err);
+      });
     })
     .catch(err => {
-      console.log(err)
+      console.log(err);
       setSpinnerOn(false);
       if (err.response && err.response.status === 401) {
-         redirectToLogin();
-       }
-       console.log(err)
-    })
-    // ✨ implement
-    // You got this!
-  }
+        redirectToLogin();
+      }
+      console.log(err);
+    });
+  };
+  
 
   const deleteArticle = (article_id) => {
     const token = localStorage.getItem('token');
@@ -200,7 +205,7 @@ export default function App() {
   return (
     // ✨ fix the JSX: `Spinner`, `Message`, `LoginForm`, `ArticleForm` and `Articles` expect props ❗
     <>
-      <Spinner spinnerOn={spinnerOn}/>
+      <Spinner on={spinnerOn}/>
       <Message message={message}/>
       <button id="logout" onClick={logout}>Logout from app</button>
       <div id="wrapper" style={{ opacity: spinnerOn ? "0.25" : "1" }}> {/* <-- do not change this line */}
@@ -217,7 +222,8 @@ export default function App() {
               postArticle={postArticle}
               updateArticle={updateArticle}
               currentArticleID={currentArticleId}
-              setCurrentArticleId={setCurrentArticleId}/>
+              setCurrentArticleId={setCurrentArticleId}
+              getArticles={getArticles}/>
               
               <Articles 
               articles={articles} 
