@@ -57,7 +57,7 @@ export default function App() {
       localStorage.setItem('token', res.data.token);
       redirectToArticles();
       setSpinnerOn(false);
-      setMessage(res.data.message)
+      //setMessage(res.data.message)
       
     })
     .catch(err => {
@@ -170,6 +170,7 @@ export default function App() {
 
   const deleteArticle = (article_id) => {
     const token = localStorage.getItem('token');
+    setSpinnerOn(true);
   
     axios
       .delete(`http://localhost:9000/api/articles/${article_id}`, {
@@ -180,8 +181,10 @@ export default function App() {
       .then((res) => {
         // Handle the successful deletion, such as removing the article from the state.
         // You can filter the articles array to remove the deleted article.
+        setSpinnerOn(false);
         setArticles(articles.filter((article) => article.article_id !== article_id));
         setMessage(res.data.message);
+      
       })
       .catch((err) => {
         // Handle any errors, including unauthorized access.
