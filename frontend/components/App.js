@@ -144,14 +144,14 @@ export default function App() {
       // Update the message state
       setMessage(res.data.message);
   
-      // Fetch the updated articles directly here
+
       axios.get('http://localhost:9000/api/articles', {
         headers: {
           authorization: token
         }
       })
       .then(res => {
-        // Update the articles state with the new data
+
         setArticles(res.data.articles);
       })
       .catch(err => {
@@ -184,15 +184,14 @@ export default function App() {
         },
       })
       .then((res) => {
-        // Handle the successful deletion, such as removing the article from the state.
-        // You can filter the articles array to remove the deleted article.
+ 
         setSpinnerOn(false);
         setArticles(articles.filter((article) => article.article_id !== article_id));
         setMessage(res.data.message);
       
       })
       .catch((err) => {
-        // Handle any errors, including unauthorized access.
+
         if (err.response && err.response.status === 401) {
           redirectToLogin();
         } else {
